@@ -127,7 +127,6 @@ func IsWritable(path string) (isWritable bool, err error) {
 		return
 	}
 
-	// Check if the user bit is enabled in file permission
 	if info.Mode().Perm()&(1<<(uint(7))) == 0 {
 		fmt.Println("Write permission bit is not set on this file for user")
 		return
